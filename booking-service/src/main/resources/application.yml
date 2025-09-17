@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: booking-service
+  main:
+    banner-mode: "off"
+  sql:
+    init:
+      mode: always
+  output:
+    ansi:
+      enabled: "always"
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:justbookit_booking}
+    username: ${POSTGRES_USER:myuser}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: justbookit_booking_servicepool
+      maximum-pool-size: 20
+      connection-timeout: 500
+      idle-timeout: 30000
+  jpa:
+    generate-ddl: true
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    template:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:catalogue-service-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      #      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: com.jbkit.booking.show.event.SeatEventDeSerializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.jbkit.common.events
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable:
+          idempotence: true
+server:
+  port: ${PORT:9091}
+logging:
+  level:
+    root: error
+    org.springframework.jdbc: debug
+    org.springframework.transaction: debug
+    ord.hibernate.SQL: debug
+    com.jbkit: debug
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

@@ -1,0 +1,89 @@
+spring:
+  ai:
+    ollama:
+      init:
+        pull-model-strategy: always
+        timeout: 60s
+        max-retries: 1
+      chat:
+        options:
+          model: gemma3:4b
+    vectorstore:
+      pgvector:
+        schema-name: public
+        initialize-schema: true
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+  vectorstore:
+    pgvector:
+      initialize-schema: true
+  application:
+    name: catalogue-service
+  main:
+    banner-mode: "off"
+  sql:
+    init:
+      mode: always
+  output:
+    ansi:
+      enabled: "always"
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:jbit6}
+    username: ${POSTGRES_USER:myuser}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    template:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:catalogue-service-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable:
+          idempotence: true
+server:
+  port: ${PORT:8080}
+logging:
+  level:
+    root: error
+    org.springframework.jdbc: debug
+    org.springframework: warn
+    com.jbkit: debug
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
