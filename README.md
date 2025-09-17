@@ -288,6 +288,3 @@ Depending on the integration approach, the following key aspects need to be cons
         - Ensuring data consistency and integrity across regions will be challenging.
     - Use of CDNs to deliver static assets and improve application performance.
     - Use of Load Balancers to distribute incoming traffic across multiple instances of the application.
-- Structure it around incrementally rolling out the platform and choice of cloud technologies to handle the scale and
-  simplicity.
-- What cloud technologies will you choose to handle failover and provide resiliency
